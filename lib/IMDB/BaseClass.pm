@@ -526,6 +526,15 @@ sub _search_results {
 	my(@matched, @guess_res, %matched_hash);
 	my $parser = $self->_parser();
 	
+	while (my $token = $parser->get_token) {
+		if ($token->[0] eq 'S' and $token->[1] eq 'div') {
+			if (exists $token->[2]{class} and $token->[2]{class} eq 'findSection') {
+				$self->_show_message("Jumped to DIV " . $token->[2]{class}, 'DEBUG');
+				last;
+			}
+		}
+	}
+	
 	my $count = 0;
 	while( my $tag = $parser->get_tag('a') ) {
 		my $href = $tag->[1]{href};

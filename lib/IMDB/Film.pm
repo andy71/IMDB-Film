@@ -764,20 +764,27 @@ sub recommendation_movies {
 
 	if($forced) {
 		my $parser = $self->_parser(FORCED);
-
-		while(my $tag = $parser->get_tag('h2')) {
-			my $text = $parser->get_text();
-			last if $text =~ /recommendations/i;
+		
+		while (my $token = $parser->get_token) {
+			if ($token->[0] eq 'S' and $token->[1] eq 'div') {
+				if (exists $token->[2]{id} and $token->[2]{id} eq 'titleRecs') {
+					$self->_show_message("Jumped to DIV " . $token->[2]{id}, 'DEBUG');
+					last;
+				}
+			}
 		}
 		
 		my %result = ();
+		my $end_tag_counter = 1;
 		while(my $tag = $parser->get_tag()) {
-			last if $tag->[0] eq '/table';
+			$end_tag_counter++ if $tag->[0] eq 'div';
+			$end_tag_counter-- if $tag->[0] eq '/div';
 			
 			my $text = $parser->get_text();
-			if($tag->[0] eq 'a' && $text && $tag->[1]{href} =~ /tt(\d+)/) {
+			if($tag->[0] eq 'a' && $text && $tag->[1]{href} && $tag->[1]{href} =~ /tt(\d+)/) {
 				$result{$1} = $text;
 			}
+			last if $end_tag_counter le '0';
 		}
 		
 		$self->{_recommendation_movies} = \%result;
