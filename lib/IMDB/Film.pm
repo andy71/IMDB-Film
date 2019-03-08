@@ -895,7 +895,7 @@ sub genres {
 
 		while(my $tag = $parser->get_tag('a')) {
 			my $genre = $parser->get_text;	
-			last unless $tag->[1]{href} =~ m!/genre/!i;
+			last unless $tag->[1]{href} =~ m/genre/i;
 			last if $genre =~ /more/i;
 			push @genres, $genre;
 		}	
